@@ -1,16 +1,22 @@
 #include "desktopball.h"
+#include "./ui/showinfo.h"
 
 DesktopBall::DesktopBall(QWidget *parent)
     : QWidget(parent)
 {
     QDesktopWidget* desktopWidget = QApplication::desktop();
-    setGeometry(desktopWidget->width()-120,desktopWidget->height()-120,86,32);
+    setGeometry(desktopWidget->width()-120,desktopWidget->height()-120,100,32);
     setWindowFlags(
                 Qt::FramelessWindowHint//去边框
            |Qt::WindowStaysOnTopHint//最ding层显示
             |Qt::Tool//不在任务栏显示
          );//去边框//最ding层显示//不在任务栏显示
     this->setAttribute(Qt::WA_TranslucentBackground, true);
+
+    //网速对象
+    netspeed=new netSpeed();
+    //内存对象
+    systeminfo=new systemInfo();
 
     tuichu  = new QAction("退出", this);
     moniter = new QAction("系统监视器",this);
@@ -38,7 +44,8 @@ DesktopBall::DesktopBall(QWidget *parent)
 
 DesktopBall::~DesktopBall()
 {
-
+    delete netspeed;
+    delete systeminfo;
 }
 void DesktopBall::paintEvent(QPaintEvent *event)
 {
@@ -54,7 +61,7 @@ void DesktopBall::paintEvent(QPaintEvent *event)
     //↓由于使用了反锯齿，四边都要多1像素，需要右下各移动1像素再绘图，确保边缘平滑显示。
     paint.setPen(QPen(QColor(210, 210, 210), 1));
   //  paint.setBrush(QBrush(Qt::white));
-    paint.drawRoundedRect(1,1,84,30,15,15);
+    paint.drawRoundedRect(1,1,100,30,10,10);
     paint.save();
     paint.restore();
 
@@ -74,7 +81,7 @@ void DesktopBall::paintEvent(QPaintEvent *event)
     QPixmap pix = QPixmap(picture).copy(0,mem,30,30);
     paint.setBrush(QBrush(Qt::green,pix));
     paint.setPen(QPen(QColor(210, 210, 210), 1));
-    paint.drawRoundedRect(1,1,30,30,15,15);
+    paint.drawRoundedRect(1,1,45,30,10,10);
     paint.save();
     paint.restore();
     //==================再写内存数值==============================
@@ -82,17 +89,17 @@ void DesktopBall::paintEvent(QPaintEvent *event)
     QFont font;
     font.setPixelSize(16);
     paint.setFont(font);
-    paint.drawText(QRectF(1,1,30,30),Qt::AlignCenter,QString().setNum( memused));
+    paint.drawText(QRectF(1,1,45,30),Qt::AlignCenter,QString().setNum( memused));
     paint.save();
     paint.restore();
 //=========================最后网速数值==================
     font.setPixelSize(11);
     paint.setFont(font);
     paint.setPen(QPen(Qt::red, 1));
-    paint.drawText(QRectF(29,2,58,14),Qt::AlignLeft|Qt::AlignVCenter,upspeed);
+    paint.drawText(QRectF(44,2,58,14),Qt::AlignLeft|Qt::AlignVCenter,upspeed);
 
     paint.setPen(QPen(QColor(60, 150, 21), 1));
-    paint.drawText(QRectF(29,16,58,14),Qt::AlignLeft|Qt::AlignVCenter,downspeed);
+    paint.drawText(QRectF(44,16,58,14),Qt::AlignLeft|Qt::AlignVCenter,downspeed);
     paint.save();
     paint.restore();
 
@@ -102,127 +109,13 @@ void DesktopBall::paintEvent(QPaintEvent *event)
 
 void DesktopBall::timeout()
 {
-   // QRegularExpressionMatch match;
-    getnetspeed();
-    getmemused();
+    memused=systeminfo->getMemory();
+    netspeed->reckonNetSpeed();
+    upspeed=netspeed->getNetUpSpeed();
+    downspeed=netspeed->getNetDownSpeed();
     update();
 
 }
-
-void DesktopBall::getnetspeed()
-{
-    QRegularExpressionMatchIterator matchs;
-    QString result,tmp;
-    qint64 up,down,t;
-    upspeed = "";
-    upspeed = "";
-    up=0;
-    down=0;
-    pro->start("ip -s link");
-    if(pro->waitForStarted(2000))
-    {
-        if(pro->waitForFinished(1000))
-        {
-            result=pro->readAllStandardOutput();
-          //  qDebug()<<result;
-            if(!result.isEmpty())
-            {
-                result.remove(QRegularExpression("link/(?!loopback|ether)[\\S\\s]+?collsns[\\S\\s]+?(\\d+ +){6}"));
-                reg.setPattern("collsns[\\s\\S]+?\\d+");
-                matchs=reg.globalMatch(result);
-                while(matchs.hasNext())
-                {
-                    tmp=matchs.next().captured(0);
-                    tmp.remove(QRegularExpression("[\\s\\S]+ "));
-                    t=tmp.toInt();
-                    up+=t;
-                }
-               // qDebug()<<"got up-data"<<up<<"oup"<<oup;
-               // QString text;
-
-                t=up-oup;
-                t=t/1024;
-                if(t>999)
-                {
-                    t=t*100/1024;
-                    float f=t*1.0/100;
-                    upspeed="↑"+QString().setNum(f)+"M";
-
-                }
-                else if(t>0) upspeed+="↑"+QString().setNum(t)+"K";
-                else upspeed="↑"+QString().setNum(up-oup)+"B";
-
-                if(oup == 0) upspeed ="↑0B";//没有基数，网速不正确，设为0B。
-                oup=up;
-
-                reg.setPattern("mcast[\\s\\S]+?\\d+");
-                matchs=reg.globalMatch(result);
-                while(matchs.hasNext())
-                {
-                    tmp=matchs.next().captured(0);
-                    tmp.remove(QRegularExpression("[\\s\\S]+ "));
-                    t=tmp.toLongLong();
-                    down+=t;
-                   // qDebug()<<"got down"<<tmp;
-                }
-               // qDebug()<<"got down-data"<<down<<"odown"<<odown;
-                t=down-odown;
-                t=t/1024;
-                if(t>999)
-                {
-                    t=t*100/1024;
-                    float f=t*1.0/100;
-                    downspeed="↓"+QString().setNum(f)+"M";
-
-                }
-                else if(t>0) downspeed="↓"+QString().setNum(t)+"K";
-                else downspeed="↓"+QString().setNum(down-odown)+"B";
-
-               // if(odown!=0) ui->down->setText(text);
-                if(odown == 0) downspeed ="↓0B";//没有基数，网速不正确，设为0B。
-
-                odown=down;
-            }
-        }
-    }
-}
-
-void DesktopBall::getmemused()
-{
-    QString result,tmp;
-    pro->start("free -m");
-    if(pro->waitForStarted(2000))
-    {
-        if(pro->waitForFinished(1000))
-        {
-            result=pro->readAllStandardOutput();
-          //  qDebug()<<result;
-            if(!result.isEmpty())
-            {
-                memused=0;
-                qint64 total,used;
-               // int omem=ui->mem->value();//先获取之前的数
-                total=0;
-                used=0;
-                reg.setPattern("\\d+.+");
-                //reg.setPattern("Mem:.+");
-                tmp=reg.match(result).captured(0);
-               // qDebug()<<tmp;
-                QStringList list=tmp.split(QRegularExpression(" +"));
-                result=list.at(0);//total
-                tmp=list.at(5);//available
-                total=result.toLongLong();
-                used=tmp.toLongLong();
-                memused=used*1000/total;
-                memused=1000-memused;
-                int m=memused%10;
-                memused/=10;
-                if(m>=5) memused+=1;//四舍五入
-            }
-        }
-    }
-}
-
 void DesktopBall::mousePressEvent(QMouseEvent* event)
 {
     if(event->button()==Qt::LeftButton )
@@ -255,6 +148,7 @@ void DesktopBall::openmoniter()
 {
     QProcess process;
     process.startDetached("gnome-system-monitor");
+
 }
 
 void DesktopBall::poscheck()

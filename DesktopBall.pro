@@ -14,9 +14,17 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        desktopball.cpp
+        desktopball.cpp \
+    server/netspeed.cpp \
+    server/systeminfo.cpp \
+    ui/showinfo.cpp
 
-HEADERS  += desktopball.h
+HEADERS  += desktopball.h \
+    server/netspeed.h \
+    server/systeminfo.h \
+    ui/showinfo.h
 
 RESOURCES += \
     res.qrc
+
+DISTFILES +=

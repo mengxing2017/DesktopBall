@@ -13,9 +13,13 @@
 #include <QMouseEvent>
 #include <QMenu>
 
-#define RED  ":/img/red.png"
-#define YELLOW  ":/img/yellow.png"
-#define GREEN  ":/img/green.png"
+#define RED  ":img/red.png"
+#define YELLOW  ":img/yellow.png"
+#define GREEN  ":img/green.png"
+
+#include "./ui/showinfo.h"
+#include "./server/netspeed.h"
+#include "./server/systeminfo.h"
 
 class DesktopBall : public QWidget
 {
@@ -29,6 +33,10 @@ private:
     int memused;
     QString upspeed;
     QString downspeed;
+    ShowInfo *w;
+
+    netSpeed *netspeed;
+    systemInfo *systeminfo;
 
 private slots:
     void timeout();
@@ -39,8 +47,8 @@ private:
     void mouseReleaseEvent(QMouseEvent * event);
     void contextMenuEvent(QContextMenuEvent *);
 
-    void getnetspeed();//可独立使用，加返回值即可
-    void getmemused();//同上
+//    void getnetspeed();//可独立使用，加返回值即可
+//    void getmemused();//同上
     void poscheck();
 
     QProcess *pro;
