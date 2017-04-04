@@ -12,6 +12,7 @@
 #include <QPoint>
 #include <QMouseEvent>
 #include <QMenu>
+#include <QDebug>
 
 #define RED  ":img/red.png"
 #define YELLOW  ":img/yellow.png"
@@ -33,10 +34,12 @@ private:
     int memused;
     QString upspeed;
     QString downspeed;
-    ShowInfo *w;
 
     netSpeed *netspeed;
     systemInfo *systeminfo;
+    ShowInfo *showinfo;
+
+    int coordinateX,coordinateY;
 
 private slots:
     void timeout();
@@ -46,9 +49,6 @@ private:
     void mouseMoveEvent(QMouseEvent * event);
     void mouseReleaseEvent(QMouseEvent * event);
     void contextMenuEvent(QContextMenuEvent *);
-
-//    void getnetspeed();//可独立使用，加返回值即可
-//    void getmemused();//同上
     void poscheck();
 
     QProcess *pro;

@@ -18,6 +18,10 @@
 #include <QFont>
 #include <QPen>
 #include <QBrush>
+#include <QTimer>
+
+#include "./server/systeminfo.h"
+#include "./server/netspeed.h"
 
 class ShowInfo : public QMainWindow
 {
@@ -39,7 +43,16 @@ private:
     QLabel *mainboardTemperature;
     QLabel *acpiTemperatture;
     QLabel *fanRevolution;
-    QLabel *netSpeed;
+    QLabel *netSpeedShow;
+
+    int coordinateX,coordinateY;
+    int memused;
+    QString upspeed;
+    QString downspeed;
+
+    QTimer *timer;
+    netSpeed *netspeed;
+    systemInfo *systeminfo;
 
     void paintEvent(QPaintEvent *);
 
@@ -47,12 +60,14 @@ public:
     explicit ShowInfo(QWidget *parent = 0);
     ~ShowInfo();
 
+
     void init_ui();
     void setLabelStyle(QLabel *qlabel, QString Sstyle);
-
+    void setParameter(int x, int y);
 signals:
 
 public slots:
+    void timeout();
 };
 
 #endif // SHOWINFO_H

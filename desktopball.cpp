@@ -17,6 +17,8 @@ DesktopBall::DesktopBall(QWidget *parent)
     netspeed=new netSpeed();
     //内存对象
     systeminfo=new systemInfo();
+    //详细信息对象
+    showinfo=new ShowInfo();
 
     tuichu  = new QAction("退出", this);
     moniter = new QAction("系统监视器",this);
@@ -104,6 +106,15 @@ void DesktopBall::paintEvent(QPaintEvent *event)
     paint.restore();
 
     QWidget::paintEvent(event);
+//    qDebug()<<this->x()<<endl<<this->y();
+    coordinateX=this->x();
+    if(this->y()>250)
+    {
+        coordinateY=this->y()-250;
+    }
+    else{
+        coordinateY=this->y()+30;
+    }
 }
 
 
@@ -114,25 +125,26 @@ void DesktopBall::timeout()
     upspeed=netspeed->getNetUpSpeed();
     downspeed=netspeed->getNetDownSpeed();
     update();
-
 }
 void DesktopBall::mousePressEvent(QMouseEvent* event)
 {
     if(event->button()==Qt::LeftButton )
     {
-        oldpos=event->globalPos()-this->pos();
-        setCursor(Qt::ClosedHandCursor);
+        showinfo->setParameter(coordinateX,coordinateY);
+        showinfo->show();
     }
-}
 
+}
 void DesktopBall::mouseMoveEvent(QMouseEvent * event){
         move(event->globalPos()-oldpos);//貌似linux要这样
         event->accept();
 }
 
 void DesktopBall::mouseReleaseEvent(QMouseEvent * event){
-    setCursor(Qt::ArrowCursor);
-    event->accept();
+    if(event->button()==Qt::LeftButton)
+    {
+    showinfo->close();
+    }
 }
 
 void DesktopBall::contextMenuEvent(QContextMenuEvent *) //右键菜单项编辑
@@ -143,7 +155,6 @@ menu->addAction(moniter);//添加系统监视器
 menu->addAction(tuichu); //添加退出
 menu->exec(cur.pos()); //关联到光标
 }
-
 void DesktopBall::openmoniter()
 {
     QProcess process;
@@ -167,6 +178,6 @@ void DesktopBall::poscheck()
     {
       y=QApplication::desktop()->height()-this->height();
     }
-    //        qDebug()<<x<<endl<<y;
+//            qDebug()<<x<<endl<<y;
     move(x,y);
 }
