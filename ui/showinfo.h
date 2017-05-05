@@ -1,6 +1,9 @@
 #ifndef SHOWINFO_H
 #define SHOWINFO_H
 
+#define CPU_SORT "ps ax -o \"%u %p %C\" -o pmem -o \"%c %a\" --sort=-%cpu|head -16"//包含头
+#define MEM_SORT "ps ax -o \"%u %p %C\" -o pmem -o \"%c %a\" --sort=-pmem|head -16"//包含头
+
 #include <QMainWindow>
 #include <QObject>
 #include <QLabel>
@@ -20,6 +23,21 @@
 #include <QBrush>
 #include <QTimer>
 
+#include <QVariant>
+#include <QAction>
+#include <QHeaderView>
+#include <QTabWidget>
+#include <QWidget>
+
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QTableWidget>
+#include <QProcess>
+#include <QDir>
+
+
 #include "./server/systeminfo.h"
 #include "./server/netspeed.h"
 
@@ -27,23 +45,20 @@ class ShowInfo : public QMainWindow
 {
     Q_OBJECT
 private:
-    QLabel *cpuTemperature_Name;
     QLabel *cpuUsage_Name;
     QLabel *memUsage_Name;
-    QLabel *hdd_Name;
-    QLabel *mainboard_Name;
-    QLabel *acpi_Name;
-    QLabel *fan_Name;
+    QLabel *cpuFrequency_Name;
     QLabel *net_Name;
-
-    QLabel *cpuTemperature;
+    QLabel *swap_Name;
+    QLabel *swap;
+    QLabel *cpuFrequency;
     QLabel *cpuUsage;
     QLabel *memUsage;
-    QLabel *hddTemperature;
-    QLabel *mainboardTemperature;
-    QLabel *acpiTemperatture;
-    QLabel *fanRevolution;
     QLabel *netSpeedShow;
+
+    QTabWidget *tabWidget;
+    QWidget *tab_info;
+    QWidget *tab_monitor;
 
     int coordinateX,coordinateY;
     int memused;
@@ -51,9 +66,19 @@ private:
     QString downspeed;
 
     QTimer *timer;
+    QTimer *timer2;
     netSpeed *netspeed;
     systemInfo *systeminfo;
 
+    QTableWidget *tableWidget;
+    QProcess *process;
+
+    QString cmd;
+    QStringList selectedpid;
+    QString pressed;
+    QStringList selected;
+    QStringList listupdate2freshselected;
+    bool pidselected(const QString&);
     void paintEvent(QPaintEvent *);
 
 public:
@@ -62,12 +87,15 @@ public:
 
 
     void init_ui();
+    void initUiMonitot();
     void setLabelStyle(QLabel *qlabel, QString Sstyle);
     void setParameter(int x, int y);
+
 signals:
 
 public slots:
-    void timeout();
+    void timeout_info();
+    void getInfo();
 };
 
 #endif // SHOWINFO_H

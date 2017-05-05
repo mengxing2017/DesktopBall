@@ -21,11 +21,11 @@ public:
     systemInfo();
     ~systemInfo();
     int getMemory();
+    QString getSwap();
     QString getQStringMemory();
     QString getFrequency();
     QString getCpuLoad(double dt);
 public slots:
-
 };
 
 #endif // SYSTEMINFO_H

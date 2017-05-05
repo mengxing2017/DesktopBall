@@ -14,12 +14,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        desktopball.cpp \
+        ui/desktopball.cpp \
     server/netspeed.cpp \
     server/systeminfo.cpp \
     ui/showinfo.cpp
 
-HEADERS  += desktopball.h \
+HEADERS  += ui/desktopball.h \
     server/netspeed.h \
     server/systeminfo.h \
     ui/showinfo.h
