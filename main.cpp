@@ -1,13 +1,13 @@
-#include "desktopball.h"
+#include "ui/desktopball.h"
 #include <QApplication>
-//#include "showinfo.h"
+#include "./ui/showinfo.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     DesktopBall w;
     w.show();
-//    ShowInfo showinfo;
-//    showinfo.show();
+//    ShowInfo w;
+//    w.show();
     return a.exec();
 }

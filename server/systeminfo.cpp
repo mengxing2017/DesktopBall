@@ -29,6 +29,37 @@ int systemInfo::getMemory()
     return usageRAM;
 }
 
+QString systemInfo::getSwap()
+{
+    ifstream stream;
+    string str;
+    stream.open("/proc/swaps");
+    for(int i=0;i<9;i++)
+    {
+        stream >> str;
+    }
+    int useSwap = atoi(str.c_str());
+    stream.close();
+    QString e="";
+    const int kb = 1024;
+    int gb = useSwap / kb / kb;
+    int mb = (useSwap - gb * kb * kb) / kb;
+    int qkb = (useSwap-gb*kb*kb-mb*kb);
+    if (gb > 0)
+    {
+       e = QString::number(gb) + QString(" Gb ") + QString::number(mb)+ QString(" Mb ");
+    }
+    else if(mb>0)
+    {
+       e = QString::number(mb) + QString(" Mb ")+QString::number(qkb)+ QString(" kb ");
+    }
+    else
+    {
+        e=QString::number(qkb)+ QString(" kb ");
+    }
+    return e;
+}
+
 QString systemInfo::getQStringMemory()
 {
     ifstream stream;

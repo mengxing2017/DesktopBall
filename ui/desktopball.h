@@ -60,6 +60,7 @@ private:
 //    QSystemTrayIcon *trayIcon;//托盘图标
     QAction *tuichu;
     QAction *moniter;
+    bool stat;
 };
 
 #endif // DESKTOPBALL_H

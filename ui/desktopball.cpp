@@ -13,6 +13,7 @@ DesktopBall::DesktopBall(QWidget *parent)
          );//去边框//最ding层显示//不在任务栏显示
     this->setAttribute(Qt::WA_TranslucentBackground, true);
 
+    stat=false;
     //网速对象
     netspeed=new netSpeed();
     //内存对象
@@ -130,8 +131,16 @@ void DesktopBall::mousePressEvent(QMouseEvent* event)
 {
     if(event->button()==Qt::LeftButton )
     {
-        showinfo->setParameter(coordinateX,coordinateY);
-        showinfo->show();
+        if(stat==false)
+        {
+            showinfo->setParameter(coordinateX,coordinateY);
+            showinfo->show();
+            stat=true;
+        }
+        else{
+            showinfo->close();
+            stat=false;
+        }
     }
 
 }
@@ -141,10 +150,10 @@ void DesktopBall::mouseMoveEvent(QMouseEvent * event){
 }
 
 void DesktopBall::mouseReleaseEvent(QMouseEvent * event){
-    if(event->button()==Qt::LeftButton)
-    {
-    showinfo->close();
-    }
+//    if(event->button()==Qt::LeftButton)
+//    {
+//    showinfo->close();
+//    }
 }
 
 void DesktopBall::contextMenuEvent(QContextMenuEvent *) //右键菜单项编辑
